@@ -6297,7 +6297,7 @@ PR_INCLUDE = [${prInclude}]
 PR_EXCLUDE = [${prExclude}]
 PR_TRANSFORMATIONS = [${prTransformations}]
 
-AUTHORING_ALLOW_LIST = [${authoringAllowList}]
+AUTHORING_ALLOW_LIST = ${authoringAllowList ? `["${authoringAllowList.join('","')}"]` : []}
 
 # Push workflow
 core.workflow(
