@@ -38,7 +38,7 @@ core.workflow(
     origin = git.origin(
         url = LOCAL_SOT if LOCAL_SOT else SOT_REPO,
         ref = SOT_BRANCH,
-        first_parent = false,
+        first_parent = False,
     ),
     destination = git.github_destination(
         url = DESTINATION_REPO,
