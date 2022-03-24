@@ -43,7 +43,8 @@ export class CopyBara {
       this.generateTransformations(config.push.move, config.push.replace, "push"),
       this.generateInExcludes(config.pr.include),
       this.generateInExcludes(config.pr.exclude),
-      this.generateTransformations(config.pr.move, config.pr.replace, "pr")
+      this.generateTransformations(config.pr.move, config.pr.replace, "pr"),
+      config.authoringAllowList
     );
   }
 
@@ -152,6 +153,7 @@ export type CopybaraConfig = {
   customConfig: string;
   workflow: string;
   copybaraOptions: string[];
+  authoringAllowList: string[];
   knownHosts: string;
   prNumber: string | number;
   createRepo: boolean;

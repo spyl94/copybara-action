@@ -10,7 +10,8 @@ export const copyBaraSky = (
   pushTransformations: string,
   prInclude: string,
   prExclude: string,
-  prTransformations: string
+  prTransformations: string,
+  authoringAllowList: string[]
 ) => `
 # Variables
 SOT_REPO = "${sotRepo}"
@@ -27,8 +28,9 @@ PUSH_TRANSFORMATIONS = [${pushTransformations}
 
 PR_INCLUDE = [${prInclude}]
 PR_EXCLUDE = [${prExclude}]
-PR_TRANSFORMATIONS = [${prTransformations}
-]
+PR_TRANSFORMATIONS = [${prTransformations}]
+
+AUTHORING_ALLOW_LIST = ${authoringAllowList ? `["${authoringAllowList.join('","')}"]` : []}
 
 # Push workflow
 core.workflow(
@@ -36,13 +38,17 @@ core.workflow(
     origin = git.origin(
         url = LOCAL_SOT if LOCAL_SOT else SOT_REPO,
         ref = SOT_BRANCH,
+        first_parent = False,
     ),
     destination = git.github_destination(
         url = DESTINATION_REPO,
         push = DESTINATION_BRANCH,
     ),
     origin_files = glob(PUSH_INCLUDE, exclude = PUSH_EXCLUDE),
-    authoring = authoring.pass_thru(default = COMMITTER),
+    authoring = authoring.allowed(
+        default = COMMITTER,
+        allowlist = AUTHORING_ALLOW_LIST
+    ),
     mode = "ITERATIVE",
     transformations = [
         metadata.restore_author("ORIGINAL_AUTHOR", search_all_changes = True),

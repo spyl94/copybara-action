@@ -89,6 +89,11 @@ inputs:
     required: false
     default: ""
 
+  authoring_allow_list:
+    description: "Use this, if you want to filter allowed co-author (space-separated)."
+    required: false
+    default: ""
+
   ssh_known_hosts:
     description: "SSH known hosts file contents, for authenticating with Copybara with another Git server. GitHub is always included by default."
     required: false

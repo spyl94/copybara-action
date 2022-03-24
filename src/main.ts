@@ -38,6 +38,7 @@ const action = new CopybaraAction({
   customConfig: core.getInput("custom_config"),
   workflow: core.getInput("workflow"),
   copybaraOptions: core.getInput("copybara_options").split(" "),
+  authoringAllowList: core.getInput("authoring_allow_list").split(" "),
   knownHosts: core.getInput("ssh_known_hosts"),
   prNumber: core.getInput("pr_number"),
   createRepo: core.getInput("create_repo") == "yes" ? true : false,

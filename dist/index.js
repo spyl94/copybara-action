@@ -6189,6 +6189,7 @@ const action = new copybaraAction_1.CopybaraAction({
     customConfig: core.getInput("custom_config"),
     workflow: core.getInput("workflow"),
     copybaraOptions: core.getInput("copybara_options").split(" "),
+    authoringAllowList: core.getInput("authoring_allow_list").split(" "),
     knownHosts: core.getInput("ssh_known_hosts"),
     prNumber: core.getInput("pr_number"),
     createRepo: core.getInput("create_repo") == "yes" ? true : false,
@@ -6278,7 +6279,7 @@ exports.getUserAgent = getUserAgent;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.copyBaraSky = void 0;
-exports.copyBaraSky = (sotRepo, sotBranch, destinationRepo, destinationBranch, committer, localSot, pushInclude, pushExclude, pushTransformations, prInclude, prExclude, prTransformations) => `
+exports.copyBaraSky = (sotRepo, sotBranch, destinationRepo, destinationBranch, committer, localSot, pushInclude, pushExclude, pushTransformations, prInclude, prExclude, prTransformations, authoringAllowList) => `
 # Variables
 SOT_REPO = "${sotRepo}"
 SOT_BRANCH = "${sotBranch}"
@@ -6294,8 +6295,9 @@ PUSH_TRANSFORMATIONS = [${pushTransformations}
 
 PR_INCLUDE = [${prInclude}]
 PR_EXCLUDE = [${prExclude}]
-PR_TRANSFORMATIONS = [${prTransformations}
-]
+PR_TRANSFORMATIONS = [${prTransformations}]
+
+AUTHORING_ALLOW_LIST = ${authoringAllowList ? `["${authoringAllowList.join('","')}"]` : []}
 
 # Push workflow
 core.workflow(
@@ -6303,13 +6305,17 @@ core.workflow(
     origin = git.origin(
         url = LOCAL_SOT if LOCAL_SOT else SOT_REPO,
         ref = SOT_BRANCH,
+        first_parent = False,
     ),
     destination = git.github_destination(
         url = DESTINATION_REPO,
         push = DESTINATION_BRANCH,
     ),
     origin_files = glob(PUSH_INCLUDE, exclude = PUSH_EXCLUDE),
-    authoring = authoring.pass_thru(default = COMMITTER),
+    authoring = authoring.allowed(
+        default = COMMITTER,
+        allowlist = AUTHORING_ALLOW_LIST
+    ),
     mode = "ITERATIVE",
     transformations = [
         metadata.restore_author("ORIGINAL_AUTHOR", search_all_changes = True),
@@ -9892,7 +9898,7 @@ class CopyBara {
     }
     static getConfig(workflow, config) {
         this.validateConfig(config, workflow);
-        return copy_bara_sky_1.copyBaraSky(`git@github.com:${config.sot.repo}.git`, config.sot.branch, `git@github.com:${config.destination.repo}.git`, config.destination.branch, config.committer, "file:///usr/src/app", this.generateInExcludes(config.push.include), this.generateInExcludes(config.push.exclude), this.generateTransformations(config.push.move, config.push.replace, "push"), this.generateInExcludes(config.pr.include), this.generateInExcludes(config.pr.exclude), this.generateTransformations(config.pr.move, config.pr.replace, "pr"));
+        return copy_bara_sky_1.copyBaraSky(`git@github.com:${config.sot.repo}.git`, config.sot.branch, `git@github.com:${config.destination.repo}.git`, config.destination.branch, config.committer, "file:///usr/src/app", this.generateInExcludes(config.push.include), this.generateInExcludes(config.push.exclude), this.generateTransformations(config.push.move, config.push.replace, "push"), this.generateInExcludes(config.pr.include), this.generateInExcludes(config.pr.exclude), this.generateTransformations(config.pr.move, config.pr.replace, "pr"), config.authoringAllowList);
     }
     exec(dockerParams = [], copybaraOptions = []) {
         return __awaiter(this, void 0, void 0, function* () {
